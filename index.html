@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Gangrene Detection</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      margin: 0;
+      padding: 20px;
+      text-align: center;
+    }
+
+    h1 {
+      color: #333;
+    }
+
+    form {
+      margin-top: 20px;
+    }
+
+    input[type="file"] {
+      margin-bottom: 10px;
+    }
+
+    input[type="submit"] {
+      padding: 10px 20px;
+      background-color: #4CAF50;
+      color: white;
+      border: none;
+      cursor: pointer;
+    }
+
+    input[type="submit"]:hover {
+      background-color: #45a049;
+    }
+
+    #image-preview {
+      max-width: 400px;
+      max-height: 400px;
+    }
+  </style>
+</head>
+<body>
+  <h1>Gangrene Detection</h1>
+  <form id="upload-form" enctype="multipart/form-data" method="post" action="/predict">
+    <input type="file" name="file" id="file-input" required>
+    <input type="submit" value="Predict" id="predict-button" disabled>
+  </form>
+  <img id="image-preview" src="" alt="Image Preview">
+  <p id="prediction-result"></p>
+
+  <script>
+    const form = document.getElementById('upload-form');
+    const fileInput = document.getElementById('file-input');
+    const predictButton = document.getElementById('predict-button');
+    const imagePreview = document.getElementById('image-preview');
+    const predictionResult = document.getElementById('prediction-result');
+
+    fileInput.addEventListener('change', () => {
+      const file = fileInput.files[0];
+      if (file) {
+        const reader = new FileReader();
+        reader.onload = () => {
+          imagePreview.src = reader.result;
+          predictButton.disabled = false;
+        }
+        reader.readAsDataURL(file);
+      }
+    });
+
+    form.addEventListener('submit', (event) => {
+      event.preventDefault();
+      const formData = new FormData(event.target);
+      fetch('/predict', {
+        method: 'POST',
+        body: formData
+      })
+      .then(response => response.text())
+      .then(prediction => {
+        predictionResult.textContent = `Prediction: ${prediction}`;
+      })
+      .catch(error => {
+        console.error('Error:', error);
+      });
+    });
+  </script>
+</body>
+</html>
